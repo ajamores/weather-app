@@ -4,6 +4,7 @@ console.log(`Form found: ${form}`);
 let weatherIcon = document.getElementById("weather-icon");
 let temp = document.getElementById("temp");
 let locationInfo = document.getElementById("location-info");
+console.log(`location info grabbed: ${locationInfo}`)
 let weatherStats = document.getElementById("weather-stats");
 
 
@@ -79,7 +80,17 @@ const getLocation = async (address) =>{
             throw new Error("Error: Check Server logs from geocoding API");
         }
 
-        console.log(serverResponse);
+        console.log(`Location info, Server Response: ${JSON.stringify(serverResponse)}`);
+
+
+        //set country and locaility and city 
+        extractLocationInfo(serverResponse);
+
+        //get weather
+        const weatherInfo = await getWeather(serverResponse.lat, serverResponse.long);
+
+        console.log(`Weather info, server response: ${JSON.stringify(weatherInfo)}`);
+
 
     } catch(error){
         console.log(error);
@@ -97,7 +108,9 @@ const getWeather = async (lat, long) => {
         const data = await response.json();
 
         console.log(data);
-        return data
+
+        return data;
+        
     } catch(error){
         console.log(error);
     }
@@ -106,7 +119,22 @@ const getWeather = async (lat, long) => {
 
 
 const extractLocationInfo = (data) => {
-    
+
+    let country = document.getElementById("country");
+    let locCity = document.getElementById("loc-city");
+
+    country.innerText = data.country;
+
+    if(data.locality === "" || data.locality == null){
+        locCity.innerText = data.city;
+    } else{
+        locCity.innerText = `${data.locality}, ${data.city}`;
+    }
+};
+
+const extractWeatherInfo = (data) =>{
+    let temp = document.getElementById
+
 };
 
 

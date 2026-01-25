@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const axios = require('axios'); //Use for http requests 
+const path = require('path');
 
 
 //For possible ai intergration 
@@ -104,7 +105,8 @@ app.get("/api/geocoding", async (req, res) =>{
             country : country,
             locality: locality,
             lat: location.lat,
-            long: location.lng
+            long: location.lng,
+            allData: geoLocationData
         });
 
 
@@ -145,34 +147,39 @@ app.get("/api/weather/", async (req,res) =>{
         //wait for response
         const apiResponse = await axios.get(url);
 
-        //TO DO: add error check for api response or not?? does the catch not already get the error
 
         console.log(apiResponse.data);
 
         //extract data
+        const timeStamp = new Date(apiResponse.data.currentTime);
+        const timeZone = apiResponse.data.timeZone.id;
+        console.log("TimeStamp: " + timeStamp);
+        console.log("TimeZone: " + timeZone);
 
-        const timestamp = apiResponse.data.currentTime;
-        console.log("TimeStamp: " + timestamp);
+        const formattedTimeStamp = timeStamp.toLocaleString('en-US', {
+            timeZone: timeZone,
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZoneName: 'short'
+        });
 
+        console.log("Formatted timeZone: " + formattedTimeStamp);
 
-        if (typeof Temporal !== 'undefined') {
-            console.log('Temporal API is supported');
-        } else {
-            console.log('Temporal API is not supported');
-        }
-
-
-
-
-
-
+        const urlIcon = apiResponse.data.weatherCondition.iconBaseUri;
+        const description = apiResponse.data.weatherCondition.description.text;
+        const temp = apiResponse.data.temperature.degrees;
 
         return res.json({
             success: true,
-            date: date,
-            time: time,
+            timeStamp: formattedTimeStamp,
+            timeZone: timeZone,
             urlIcon: urlIcon,
-
+            description: description,
+            temp: temp
 
         });
     
@@ -190,6 +197,33 @@ app.get("/api/weather/", async (req,res) =>{
     }
         
 });
+
+app.get("/api/weather-icon", async (req, res) => {
+  try {
+    const url = req.query.url;
+
+    if (!url) {
+      return res.status(400).json({
+        error: "Missing url parameter"
+      });
+    }
+
+    const response = await axios.get(`${url}.png`, {
+      responseType: "arraybuffer",
+      headers: { "User-Agent": "Mozilla/5.0" }
+    });
+
+    res.set("Content-Type", "image/png");
+    res.send(response.data);
+
+  } catch (error) {
+    console.error("Weather icon error:", error.message);
+    res.status(500).json({
+      error: "Failed to fetch weather icon"
+    });
+  }
+});
+
 
 
 

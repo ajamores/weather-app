@@ -7,17 +7,24 @@
     <script defer src="script.js"></script>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/weather-icons.min.css">
-</head>
-<body>
+     <!-- Google Fonts: JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    </head>
+    <body>
     <div class="weather-app">
         <div class="weather-info">
-            <div class="weather-icon"></i></div>
-            <div class="temp"></div>
-            <div class="location-info" id="location-info">
-                <span class="country" id="country"></span>
-                <span class="loc-city" id="loc-city"></span>
+            <div class="weather-stats">
+                <img src="" alt="" class="weather-icon" id="weather-icon">
+                <span class="temp" id="temp"></span>
+                <span class="description" id="description"></span>
             </div>
-            <div class="weather-stats"></div>
+            <div class="location-info" id="location-info">
+                <span class="loc-city" id="loc-city"></span>
+                <span class="country" id="country"></span>
+                <span class="time-stamp" id="time-stamp"></span>
+            </div>
         </div>
         <div class="sidebar">
             <form id="searchbar" class="searchbar">

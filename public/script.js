@@ -6,6 +6,10 @@ let temp = document.getElementById("temp");
 let locationInfo = document.getElementById("location-info");
 console.log(`location info grabbed: ${locationInfo}`)
 let weatherStats = document.getElementById("weather-stats");
+let timeStamp = document.getElementById("time-stamp")
+let timeZone = document.getElementById("time-zone");
+let description = document.getElementById("description");
+console.log("Description element: " + description)
 
 
 
@@ -88,8 +92,8 @@ const getLocation = async (address) =>{
 
         //get weather
         const weatherInfo = await getWeather(serverResponse.lat, serverResponse.long);
-
         console.log(`Weather info, server response: ${JSON.stringify(weatherInfo)}`);
+        extractWeatherInfo(weatherInfo);
 
 
     } catch(error){
@@ -118,6 +122,7 @@ const getWeather = async (lat, long) => {
 }
 
 
+
 const extractLocationInfo = (data) => {
 
     let country = document.getElementById("country");
@@ -133,7 +138,12 @@ const extractLocationInfo = (data) => {
 };
 
 const extractWeatherInfo = (data) =>{
-    let temp = document.getElementById
+
+    temp.innerHTML = `${data.temp} &deg;C`;
+    timeStamp.innerText = data.timeStamp
+    weatherIcon.src = `/api/weather-icon?url=${encodeURIComponent(data.urlIcon)}`;
+    weatherIcon.alt = data.description;
+    description.innerText = data.description;
 
 };
 

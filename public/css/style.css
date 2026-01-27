@@ -33,7 +33,7 @@ body{
     border-left:  1px solid black;
     flex-direction: column;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.156);
+    background-color: rgba(97, 106, 235, 0.384);
 }
 
 .searchbar{
@@ -61,8 +61,13 @@ body{
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     gap:1rem;
+    justify-content: space-between;
+}
+
+.weather-icon{
+    width: 7rem;
+    height: 7rem;
 }
 
 
@@ -70,21 +75,29 @@ body{
     border: 2px solid rgba(0, 0, 0, 0.241);
     border-radius: 1rem;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.384);
+    background-color: rgba(97, 106, 235, 0.384);
     padding: 2rem;
+    flex-direction: column;
 
+}
+
+.stats-left{
+    display: flex;
+    flex-direction: column;
 }
 
 .weather-stats{
     border: 2px solid rgba(0, 0, 0, 0.241);
     border-radius: 1rem;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.241);
+    background-color: rgba(97, 106, 235, 0.384);
     padding: 2rem;
+}
+
+#todays-icon{
+    align-self: center;
 }
 
 .temp{

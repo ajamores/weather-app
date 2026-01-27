@@ -198,9 +198,11 @@ app.get("/api/weather/", async (req,res) =>{
         
 });
 
+//Http request to get svg weather icon 
 app.get("/api/weather-icon", async (req, res) => {
   try {
-    const url = req.query.url;
+    let url = req.query.url;
+
 
     if (!url) {
       return res.status(400).json({
@@ -208,12 +210,21 @@ app.get("/api/weather-icon", async (req, res) => {
       });
     }
 
-    const response = await axios.get(`${url}.png`, {
-      responseType: "arraybuffer",
+        // Append .svg if not already present
+    if (!url.endsWith(".svg")) {
+      url += ".svg";
+    }
+
+     console.log("Http request with url: " + url);
+
+    const response = await axios.get(`${url}`, {
+      responseType: "text",
       headers: { "User-Agent": "Mozilla/5.0" }
     });
 
-    res.set("Content-Type", "image/png");
+    console.log("SVG length:", response.data.length);
+
+    res.set("Content-Type", "image/svg+xml");
     res.send(response.data);
 
   } catch (error) {
@@ -222,6 +233,66 @@ app.get("/api/weather-icon", async (req, res) => {
       error: "Failed to fetch weather icon"
     });
   }
+});
+
+app.get("/api/weather-forcast", async (req, res) => {
+    try {
+
+        //Always show 6 days, first day is current day no need 
+        const days = 10;
+        const lat = req.query.lat;
+        const long = req.query.long;
+
+         console.log(`Weather API - Lat: ${lat}`);
+        console.log(`Weather API - Long: ${long}`);
+
+        //first check params
+        if(!lat || !long){
+            return res.status(400).json({
+                error: "Lat and Long parameters must be provided"
+            })
+        }
+
+        const url = `https://weather.googleapis.com/v1/forecast/days:lookup?key=${apiKey}&location.latitude=${lat}&location.longitude=${long}&days=${days}`;
+
+        const response = await axios.get(url);
+
+        console.log(JSON.stringify(response.data, null , 2));
+
+        const forecastDays = response.data.forecastDays;
+        console.log("Days of forcast grabbed: " + response.data.length)
+
+        // Skip today → take next 5 days
+        const nextFiveDays = forecastDays.map( day=> {
+            // parse the start date of the interval
+            const date = new Date(day.interval.startTime);
+
+            // get day of week, like Monday, Tuesday
+            const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
+
+            return {
+                day: dayName,
+                high: day.maxTemperature.degrees,
+                low: day.minTemperature.degrees,
+                description: day.daytimeForecast.weatherCondition.description.text,
+                iconUrl: day.daytimeForecast.weatherCondition.iconBaseUri
+            };
+        });
+
+        res.json({
+            success: true,
+            forecast: nextFiveDays
+        });
+
+
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
 });
 
 

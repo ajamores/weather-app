@@ -1,0 +1,25 @@
+        const prompt = `
+                Create a single high-quality anime-style illustration set in ${country}.
+
+            The scene must feel immediately recognizable to someone who lives in ${country}.
+            Choose a location, street, landmark, or everyday environment that is strongly
+            associated with ${country}
+
+            Base the lighting, sky, atmosphere, and mood on weather that is typical for
+            this time of year in ${country} (cloud cover, rain, sunlight softness,
+            humidity, haze, or seasonal conditions).
+
+            Include culturally and geographically accurate details that locals would notice:
+            - Native vegetation, terrain, or environmental textures
+            - Everyday objects, signage style, or urban/rural details natural to the region
+
+            Anime style guidelines:
+            - Clean line art with soft but confident outlines
+            - Painterly anime background style (Makoto Shinkai–inspired realism, not chibi)
+            - Natural anime color grading influenced by weather
+            - Subtle depth of field and atmospheric perspective
+            - Calm, cinematic composition
+
+            Wide landscape orientation, desktop wallpaper format,
+            high resolution, no text, no logos, no exaggerated fantasy elements.
+            `;

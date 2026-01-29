@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Application</title>
-    <script defer src="script.js"></script>
+
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/weather-icons.min.css">
      <!-- Google Fonts: JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <script defer src="script.js"></script>
     </head>
     <body>
     <div class="weather-app">
@@ -23,26 +24,11 @@
                     <span class="today" id="today">Today</span>
                 </div>
                 <div class="stats-right" id="stats-right">
-                    <div class="d1" id="d1">
-                        <img src="" alt="" class="weather-icon" id="d1-icon">
-                        <span class="day" id="d1-name"></span>
-                    </div>
-                    <div class="d2" id="d2">
-                        <img src="" alt="" class="weather-icon" id="d2-icon">
-                        <span class="day" id="d2-name"></span>
-                    </div>
-                    <div class="d3" id="d3">
-                        <img src="" alt="" class="weather-icon" id="d3-icon">
-                        <span class="day" id="d3-name"></span>
-                    </div>
-                    <div class="d4" id="d4">
-                        <img src="" alt="" class="weather-icon" id="d4-icon">
-                        <span class="day" id="d4-name"></span>
-                    </div>
-                    <div class="d5" id="d5">
-                        <img src="" alt="" class="weather-icon" id="d5-icon">
-                        <span class="day" id="d5-name">Monday</span>
-                    </div>
+                    <div class="d1" id="d1"></div>
+                    <div class="d2" id="d2"></div>
+                    <div class="d3" id="d3"></div>
+                    <div class="d4" id="d4"></div>
+                    <div class="d5" id="d5"></div>
                 </div>
             </div>
             <div class="location-info" id="location-info">
@@ -56,6 +42,9 @@
                 <input type="search" name="location" id="place-search" placeholder="Search Here">
                 <button type="submit" id="submitBtn">Search</button>
             </form>
+            <span class="recent-news">Recent News</span>
+            <div class="news-section" id="news-section">
+            </div>
         </div>
     </div>
 </body>

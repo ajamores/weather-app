@@ -11,30 +11,20 @@ let timeZone = document.getElementById("time-zone");
 let description = document.getElementById("description");
 console.log("Description element: " + description)
 
+let presentCountry = "";
+let presentWeather = "";
+
 // Day 1
 const d1 = document.getElementById("d1");
-const d1Icon = document.getElementById("d1-icon");
-const d1Name = document.getElementById("d1-name");
-
 // Day 2
 const d2 = document.getElementById("d2");
-const d2Icon = document.getElementById("d2-icon");
-const d2Name = document.getElementById("d2-name");
-
 // Day 3
 const d3 = document.getElementById("d3");
-const d3Icon = document.getElementById("d3-icon");
-const d3Name = document.getElementById("d3-name");
-
 // Day 4
 const d4 = document.getElementById("d4");
-const d4Icon = document.getElementById("d4-icon");
-const d4Name = document.getElementById("d4-name");
-
 // Day 5
 const d5 = document.getElementById("d5");
-const d5Icon = document.getElementById("d5-icon");
-const d5Name = document.getElementById("d5-name");
+
 
 
 
@@ -123,6 +113,11 @@ const getLocation = async (address) =>{
 
         const forcast = await get5DayForecast(serverResponse.lat, serverResponse.long);
         console.log(`Weather 5 day forecast: ` + JSON.stringify(forcast));
+        extractDailyForecast(forcast);
+
+        await fetchNews(address);
+
+        await fetchImage(presentCountry, presentWeather);
 
 
     } catch(error){
@@ -182,6 +177,10 @@ const extractLocationInfo = (data) => {
     } else{
         locCity.innerText = `${data.locality}, ${data.city}`;
     }
+
+    presentCountry = country;
+
+    
 };
 
 const extractWeatherInfo = (data) =>{
@@ -192,11 +191,123 @@ const extractWeatherInfo = (data) =>{
     weatherIcon.alt = data.description;
     description.innerText = data.description;
 
+    presentWeather = data.description;
+
 };
 
-const extractDailyForecast = (data) =>{
-    
-}
+const extractDailyForecast = (data) => {
+    if (!data.success || !data.forecast || data.forecast.length === 0) return;
+
+    const dayDivs = [d1, d2, d3, d4, d5];
+
+    data.forecast.forEach((dayData, index) => {
+        const div = dayDivs[index];
+        if (!div) return;
+
+        // Clear existing content
+        div.innerHTML = "";
+
+        // Create div for image + day
+        const iconDayDiv = document.createElement("div");
+        iconDayDiv.classList.add("icon-day");
+
+        const img = document.createElement("img");
+        img.src = `/api/weather-icon?url=${encodeURIComponent(dayData.iconUrl)}`;
+        img.alt = dayData.description;
+        img.classList.add("weather-icon");
+        iconDayDiv.appendChild(img);
+
+        const dayName = document.createElement("span");
+        dayName.innerText = dayData.day;
+        dayName.classList.add("day");
+        iconDayDiv.appendChild(dayName);
+
+        // Create separate div for "feels like"
+        const feelsLikeDiv = document.createElement("div");
+        feelsLikeDiv.classList.add("feels-like");
+
+        // Create individual spans for high, low, and description
+        const highSpan = document.createElement("span");
+        highSpan.classList.add("high");
+        highSpan.innerText = `High: ${dayData.high}°C`;
+
+        const lowSpan = document.createElement("span");
+        lowSpan.classList.add("low");
+        lowSpan.innerText = `Low: ${dayData.low}°C`;
+
+        const descSpan = document.createElement("span");
+        descSpan.classList.add("desc");
+        descSpan.innerText = dayData.description;
+
+        // Append spans to feelsLikeDiv
+        feelsLikeDiv.appendChild(highSpan);
+        feelsLikeDiv.appendChild(lowSpan);
+        feelsLikeDiv.appendChild(descSpan);
+
+        // Append both to the main div
+        div.appendChild(iconDayDiv);
+        div.appendChild(feelsLikeDiv);
+    });
+};
+
+const fetchNews = async (location) => {
+    const newsList = document.getElementById("news-section");
+    newsList.innerHTML = "<li>Loading news...</li>"; // show loading state
+
+    try {
+        const response = await fetch(`/api/news?location=${encodeURIComponent(location)}`);
+        const data = await response.json();
+
+
+        // parse the AI response
+        let articles = [];
+        try {
+            articles = data.articles;
+            console.log(articles);
+        } catch (err) {
+            console.error("Failed to parse AI news JSON:", err);
+            newsList.innerHTML = "<li>Failed to load news.</li>";
+            return;
+        }
+
+        // clear and populate
+        newsList.innerHTML = "";
+        if (articles && articles.length > 0) {
+            articles.forEach(item => {
+                const li = document.createElement("li");
+                li.innerHTML = `<a href="${item.url}" target="_blank">${item.name}</a>`;
+                newsList.appendChild(li);
+            });
+        } else {
+            newsList.innerHTML = "<li>No news found for this location.</li>";
+        }
+
+    } catch (err) {
+        console.error(err);
+        newsList.innerHTML = "<li>Error fetching news.</li>";
+    }
+};
+
+const setBackground = (imageUrl) => {
+    document.body.style.backgroundImage = `url('${imageUrl}')`;
+};
+
+const fetchImage = async (country, weather) => {
+    try {
+        const response = await fetch(`/api/image?country=${encodeURIComponent(country)}&weather=${encodeURIComponent(weather)}`);
+        const data = await response.json();
+
+        if (data.success) {
+            setBackground(data.imageUrl);
+        } else {
+            // fallback to default
+            setBackground('/assets/images/rain.jpg');
+        }
+    } catch (err) {
+        console.error("Failed to fetch image:", err);
+        setBackground('/assets/images/rain.jpg'); // fallback
+    }
+};
 
 
 

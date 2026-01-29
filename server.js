@@ -257,13 +257,15 @@ app.get("/api/weather-forcast", async (req, res) => {
 
         const response = await axios.get(url);
 
-        console.log(JSON.stringify(response.data, null , 2));
+        // console.log(JSON.stringify(response.data, null , 2));
 
         const forecastDays = response.data.forecastDays;
-        console.log("Days of forcast grabbed: " + response.data.length)
+        console.log("Days of forcast grabbed: " + forecastDays.length);
+        
 
         // Skip today → take next 5 days
         const nextFiveDays = forecastDays.map( day=> {
+            console.log(day.displayDate);
             // parse the start date of the interval
             const date = new Date(day.interval.startTime);
 
@@ -294,6 +296,91 @@ app.get("/api/weather-forcast", async (req, res) => {
         });
     }
 });
+
+app.get("/api/news", async (req, res) => {
+    try {
+        const location = req.query.location;
+        if (!location || location.trim() === "") {
+            return res.status(400).json({ error: "Location is required" });
+        }
+
+        // Initialize Gemini AI
+        const ai = new GoogleGenAI({ apiKey: googleAiApiKey });
+        const response = await ai.models.generateContent({
+        model: "gemini-3-pro-preview",
+        contents: `Give me 5 recent news articles within the last month about ${location}.
+            Return your response as **valid JSON only** in the following format:
+
+            {
+                "articles": [
+                    { "name": "Title 1" },
+                    { "name": "Title 2" },
+                    { "name": "Title 3" },
+                    { "name": "Title 4" },
+                    { "name": "Title 5" }
+                ]
+            }`,
+        });
+        console.log(response.text);
+
+        // Parse the AI response
+        const titles = JSON.parse(response.text).articles;
+
+        // Build Google News URLs automatically
+        const articles = titles.map(a => ({
+            name: a.name,
+            url: `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(a.name)}`
+        }));
+        return res.json({ success: true, articles});
+
+    } catch (error) {
+        console.error("News API error:", error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+
+// ================= Unsplash API ===================
+const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY; // put your key in .env
+const DEFAULT_IMAGE = '/images/default-weather.jpg'; // place your default in public/images/
+
+app.get("/api/image", async (req, res) => {
+    try {
+        const country = req.query.country || "world";
+        const weather = req.query.weather || "clear";
+
+        // Build search query
+        const query = `${country} ${weather}`;
+
+        // Unsplash API URL
+        const url = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&client_id=${UNSPLASH_ACCESS_KEY}&orientation=landscape`;
+
+        const response = await axios.get(url);
+
+        // Extract image URL and photographer
+        const imageUrl = response.data.urls.regular;
+        const photographer = response.data.user.name;
+        const photographerLink = response.data.user.links.html;
+
+        return res.json({
+            success: true,
+            imageUrl,
+            credit: `Photo by <a href="${photographerLink}" target="_blank">${photographer}</a> on <a href="https://unsplash.com" target="_blank">Unsplash</a>`
+        });
+
+    } catch (error) {
+        console.error("Unsplash API error:", error.message);
+
+        // Return default image
+        return res.json({
+            success: false,
+            imageUrl: DEFAULT_IMAGE,
+            credit: ""
+        });
+    }
+});
+
+
 
 
 

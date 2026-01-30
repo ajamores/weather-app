@@ -20,6 +20,7 @@ const PORT = process.env.PORT || 3000;
 //Get api key
 const apiKey = process.env.WEATHER_API;
 const googleAiApiKey = process.env.GEMINI_API;
+const UNSPLASH_KEY = process.env.UNSPLASH_ACCESS;
 
 //get static files
 app.use(express.json()); // Parse JSON bodies
@@ -65,9 +66,9 @@ app.get("/api/geocoding", async (req, res) =>{
 
         let city ='';
         let country = ''
-        let = locality =''
+        let locality =''
 
-        addressComp = geoLocationData.results[0].address_components;
+        let addressComp = geoLocationData.results[0].address_components;
         console.log(addressComp);
 
         //Obtain city and Country by iterating through data 
@@ -235,7 +236,7 @@ app.get("/api/weather-icon", async (req, res) => {
   }
 });
 
-app.get("/api/weather-forcast", async (req, res) => {
+app.get("/api/weather-forecast", async (req, res) => {
     try {
 
         //Always show 6 days, first day is current day no need 
@@ -307,17 +308,17 @@ app.get("/api/news", async (req, res) => {
         // Initialize Gemini AI
         const ai = new GoogleGenAI({ apiKey: googleAiApiKey });
         const response = await ai.models.generateContent({
-        model: "gemini-3-pro-preview",
-        contents: `Give me 5 recent news articles within the last month about ${location}.
+        model: "gemini-3-flash-preview",
+        contents: `Give me 5 fun facts about ${location}.
             Return your response as **valid JSON only** in the following format:
 
             {
                 "articles": [
-                    { "name": "Title 1" },
-                    { "name": "Title 2" },
-                    { "name": "Title 3" },
-                    { "name": "Title 4" },
-                    { "name": "Title 5" }
+                    { "name": "Title 1", "url": url(place you got fact from) },
+                    { "name": "Title 2" , "url": url(place you got fact from)},
+                    { "name": "Title 3", "url": url(place you got fact from) },
+                    { "name": "Title 4", "url": url(place you got fact from) },
+                    { "name": "Title 5", "url": url(place you got fact from) }
                 ]
             }`,
         });
@@ -329,7 +330,7 @@ app.get("/api/news", async (req, res) => {
         // Build Google News URLs automatically
         const articles = titles.map(a => ({
             name: a.name,
-            url: `https://www.google.com/search?tbm=nws&q=${encodeURIComponent(a.name)}`
+            url: a.url
         }));
         return res.json({ success: true, articles});
 
@@ -341,35 +342,31 @@ app.get("/api/news", async (req, res) => {
 
 
 // ================= Unsplash API ===================
-const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY; // put your key in .env
-const DEFAULT_IMAGE = '/images/default-weather.jpg'; // place your default in public/images/
+const DEFAULT_IMAGE = 'assets/images/rain.jpg'; // place your default in public/images/
 
 app.get("/api/image", async (req, res) => {
     try {
         const country = req.query.country || "world";
         const weather = req.query.weather || "clear";
+        console.log("Getting image for: " + country);
 
-        // Build search query
-        const query = `${country} ${weather}`;
+        const url = `https://api.unsplash.com/photos/random?client_id=${UNSPLASH_KEY}&query=${country} ${weather}&orientation=landscape`;
 
-        // Unsplash API URL
-        const url = `https://api.unsplash.com/photos/random?query=${encodeURIComponent(query)}&client_id=${UNSPLASH_ACCESS_KEY}&orientation=landscape`;
 
         const response = await axios.get(url);
+        console.log("UNSPLASH API DATA RECIEVED: " + response.json());
 
-        // Extract image URL and photographer
-        const imageUrl = response.data.urls.regular;
-        const photographer = response.data.user.name;
-        const photographerLink = response.data.user.links.html;
+        const imageUrl = response.data.urls.raw + "&w=1920&h=1080&fit=crop";
 
-        return res.json({
-            success: true,
-            imageUrl,
-            credit: `Photo by <a href="${photographerLink}" target="_blank">${photographer}</a> on <a href="https://unsplash.com" target="_blank">Unsplash</a>`
-        });
+            return res.json({
+                success: true,
+                imageUrl: imageUrl
+            });
 
     } catch (error) {
         console.error("Unsplash API error:", error.message);
+        console.log("Error cause: " + error.cause);
+        console.log(error.stack);
 
         // Return default image
         return res.json({
@@ -386,50 +383,7 @@ app.get("/api/image", async (req, res) => {
 
 
         //possible ai art generation 
-        // const ai = new GoogleGenAI({apiKey: googleAiApiKey});
-
-        // let country = 'waterloo, on'
-        // const prompt = `
-        // Create a single ultra-realistic photograph set in ${country}.
-
-        // The scene must be immediately recognizable to someone who lives in ${country}.
-        // Select a widely known landmark, cityscape, natural feature, or architectural style
-        // that is strongly associated with ${country} and would not be confused with another place.
-
-        // Base the atmosphere, lighting, sky, and overall mood on weather that is nice sunny day in ${country} (cloud cover, humidity, sunlight quality,
-        // haze, or seasonal conditions).
-
-        // Include culturally and geographically accurate details:
-        // - Building materials, colors, and urban layout typical of the region
-        // - Environmental details locals would notice subconsciously
-
-        // Style:
-        // epic wide
-        // Modern atmospheric photography,
-        // clean contemporary aesthetic,
-        // natural realistic colors,
-        // minimalist composition with subtle framing elements,
-        // weather-driven mood.
-
-        // Wide landscape orientation, desktop wallpaper format,
-        // high resolution, professional photography,
-        // no illustration, no painting, no text.
-        // `;
-
-        // const response = await ai.models.generateContent({
-        //     model: "gemini-3-pro-image-preview",
-        //     contents: prompt,
-        // });
-        // for (const part of response.candidates[0].content.parts) {
-        //     if (part.inlineData) {
-        //         const imageData = part.inlineData.data;
-        //         const buffer = Buffer.from(imageData, "base64");
-
-        //         res.setHeader("Content-Type", "image/png");
-        //         return res.send(buffer);
-        //     }
-        // }
-
+      
 
 
 

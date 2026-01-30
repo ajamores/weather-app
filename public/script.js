@@ -31,17 +31,7 @@ const d5 = document.getElementById("d5");
 //When document begins 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    //Start default here 
-    const coords = await getLocation('Hamilton, ON');
-
-    if (coords) { 
-        // console.log(`coords: ${JSON.stringify(coords)}`);
-
-        // console.log("Got starting coordinates")
-        await getTodaysWeather(coords.lat, coords.long);
-
-    }
-
+    await getDataFlow('Hamilton, ON');
 
 });
 
@@ -54,21 +44,7 @@ form.addEventListener("submit", async (e) => {
 
         const location = formData.get('location');
 
-        if(location != null && location.trim() !== ''){
-
-            try{
-                const coords = await getLocation(location);
-
-                if(coords){
-                    await getTodaysWeather(coords.lat, coords.long);
-
-                    
-                }
-            } catch(error){
-                console.log(error);
-            }
-
-        }
+        await getDataFlow(location);
 
         //remove search result
         form.reset();
@@ -79,16 +55,51 @@ form.addEventListener("submit", async (e) => {
 
 
 
+const getDataFlow = async (location) =>{
+
+    if(location != null && location.trim() !== ''){
+
+    try{
+        const coords = await getLocation(location);
+
+        if(coords){
+
+            //set country and locaility and city 
+            extractLocationInfo(coords);
+            // 1️⃣ Get weather
+            const weatherInfo = await getTodaysWeather(coords.lat, coords.long);
+            extractWeatherInfo(weatherInfo);
+            
+            console.log("Present Country" + presentCountry);
+            const location = presentCountry;
+            await fetchImage(location, weatherInfo.description);
+            
+
+            // 3️⃣ Get 5-day forecast
+            const forecast = await get5DayForecast(coords.lat, coords.long);
+            extractDailyForecast(forecast);
+
+            // 4️⃣ Fetch image and news AFTER weather is available
+            await fetchNews(presentCountry);
+
+        
+        }
+    } catch(error){
+        console.log(error);
+    }
+
+}
+
+};
+
+
 /*
 =======================Functions=================================
 */
 
-
-
-
-
 const getLocation = async (address) =>{
     try{
+        console.log("Address: " + address)
         const response = await fetch(`/api/geocoding?address=${address}`);
         
         if(!response.ok){
@@ -101,23 +112,8 @@ const getLocation = async (address) =>{
         }
 
         console.log(`Location info, Server Response: ${JSON.stringify(serverResponse)}`);
+        return serverResponse;
 
-
-        //set country and locaility and city 
-        extractLocationInfo(serverResponse);
-
-        //get weather
-        const weatherInfo = await getTodaysWeather(serverResponse.lat, serverResponse.long);
-        console.log(`Weather info, server response: ${JSON.stringify(weatherInfo)}`);
-        extractWeatherInfo(weatherInfo);
-
-        const forcast = await get5DayForecast(serverResponse.lat, serverResponse.long);
-        console.log(`Weather 5 day forecast: ` + JSON.stringify(forcast));
-        extractDailyForecast(forcast);
-
-        await fetchNews(address);
-
-        await fetchImage(presentCountry, presentWeather);
 
 
     } catch(error){
@@ -147,7 +143,7 @@ const getTodaysWeather = async (lat, long) => {
 
 const get5DayForecast = async (lat, long) => {
         try{
-        const response = await fetch(`/api/weather-forcast?lat=${lat}&long=${long}`);
+        const response = await fetch(`/api/weather-forecast?lat=${lat}&long=${long}`);
 
         if(!response.ok){
             throw new Error(`HTTP error: ${response.status}`);
@@ -165,7 +161,7 @@ const get5DayForecast = async (lat, long) => {
 
 
 
-const extractLocationInfo = (data) => {
+const extractLocationInfo = async (data) => {
 
     let country = document.getElementById("country");
     let locCity = document.getElementById("loc-city");
@@ -174,12 +170,13 @@ const extractLocationInfo = (data) => {
 
     if(data.locality === "" || data.locality == null){
         locCity.innerText = data.city;
+        presentCountry = data.city;
     } else{
         locCity.innerText = `${data.locality}, ${data.city}`;
+        presentCountry = `${data.locality}, ${data.city}`;
     }
 
-    presentCountry = country;
-
+    presentCountry += `, ${data.country}`;
     
 };
 
@@ -252,7 +249,7 @@ const extractDailyForecast = (data) => {
 
 const fetchNews = async (location) => {
     const newsList = document.getElementById("news-section");
-    newsList.innerHTML = "<li>Loading news...</li>"; // show loading state
+    newsList.innerHTML = "<li>Gemeni API fetching facts...</li>"; // show loading state
 
     try {
         const response = await fetch(`/api/news?location=${encodeURIComponent(location)}`);
@@ -289,13 +286,19 @@ const fetchNews = async (location) => {
 };
 
 const setBackground = (imageUrl) => {
-    document.body.style.backgroundImage = `url('${imageUrl}')`;
+    const weatherApp = document.getElementById("weather-app")
+    weatherApp.style.backgroundImage = `url('${imageUrl}')`;
 };
 
 const fetchImage = async (country, weather) => {
     try {
+        //Remember encodeURI: "Hamilton, ON" → "Hamilton%2C%20ON" 
         const response = await fetch(`/api/image?country=${encodeURIComponent(country)}&weather=${encodeURIComponent(weather)}`);
+        
+        console.log(response);
+        
         const data = await response.json();
+        console.log("UNSPLASH IMAGE: " + data);
 
         if (data.success) {
             setBackground(data.imageUrl);

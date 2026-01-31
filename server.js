@@ -398,12 +398,18 @@ app.get("/api/image", async (req, res) => {
 
 
 //Listen for port
-app.listen(PORT, () => {
-    console.log(`Site up at: http://localhost:${PORT}`)
-    console.log(`Listening on port: ${PORT}`);
-});
 
+// Export for Vercel serverless
+module.exports = app;
 
+// Only listen in local development
+if (process.env.NODE_ENV !== 'production') {
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+        console.log(`Site up at: http://localhost:${PORT}`)
+        console.log(`Listening on port: ${PORT}`);
+    });
+}
 
 
 //Get current conditions

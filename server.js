@@ -355,11 +355,11 @@ app.get("/api/image", async (req, res) => {
         const weather = req.query.weather || "clear";
         console.log("Getting image for: " + country);
 
-        const types = ["skyline", "nature", "downtown", "aerial", "landscape"];
-        const type = types[Math.floor(Math.random() * types.length)];
+        // URL-encode the query string
+        const query = encodeURIComponent(`${country}`);
 
-        const url = `https://api.unsplash.com/photos/random?client_id=${UNSPLASH_KEY}&query=${country} ${type}&orientation=landscape`;
-
+        const url = `https://api.unsplash.com/photos/random?client_id=${UNSPLASH_KEY}&query=${query}&orientation=landscape&content_filter=high`;
+        console.log("unsplash url: " + url);
 
         const response = await axios.get(url);
         console.log("UNSPLASH API DATA RECIEVED: " + JSON.stringify(response.data));

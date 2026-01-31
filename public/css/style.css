@@ -459,3 +459,96 @@ html, body{
 .hide-ui:active {
   transform: scale(0.97);
 }
+
+/* ================= Mobile Styles ================= */
+@media (max-width: 768px) {
+    /* Weather app container: stack vertically */
+    .weather-app {
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    /* Sidebar goes below weather info */
+    .sidebar {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid black;
+        flex-direction: column;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .sidebar.no-bg {
+        border-top: none;
+    }
+
+    /* Weather stats: full width, stacked */
+    .weather-stats {
+        flex-direction: column;
+        width: 100%;
+        padding: 1rem;
+    }
+
+    /* Location info box: full width */
+    .location-info {
+        width: 100%;
+        padding: 1rem;
+    }
+
+    /* Search bar: full width */
+    .searchbar {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+    }
+
+    #place-search {
+        width: 100%;
+    }
+
+    #submitBtn {
+        width: 100%;
+    }
+
+    /* 5-day forecast cards: wrap to multiple lines if needed */
+    .stats-right {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .d1, .d2, .d3, .d4, .d5 {
+        width: 45%; /* 2 per row on mobile */
+        margin-bottom: 0.5rem;
+    }
+
+    /* Author text smaller */
+    .author {
+        font-size: 0.8rem;
+        text-align: center;
+    }
+
+    /* Modal adjustments for mobile */
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+        padding: 1rem;
+    }
+
+    /* Buttons smaller and stacked */
+    .btn-container {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .more-info, .hide-ui {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    /* News items smaller font */
+    #news-section li {
+        font-size: 0.85rem;
+    }
+}

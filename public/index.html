@@ -15,7 +15,7 @@
     </head>
     <body>
     <div class="weather-app" id="weather-app">
-        <div class="weather-info">
+        <div class="weather-info" id="weather-info">
             <div class="weather-stats">
                 <div class="stats-left" id="stats-left">
                     <img src="" alt="" class="weather-icon" id="todays-icon">
@@ -37,13 +37,25 @@
                 <span class="time-stamp" id="time-stamp"></span>
             </div>
         </div>
-        <div class="sidebar">
-            <form id="searchbar" class="searchbar">
-                <input type="search" name="location" id="place-search" placeholder="Search Here">
-                <button type="submit" id="submitBtn">Search</button>
-            </form>
-            <span class="recent-news">Fun Facts</span>
-            <div class="news-section" id="news-section">
+        <div class="sidebar" id="sidebar">
+                <form id="searchbar" class="searchbar">
+                    <input type="search" name="location" id="place-search" placeholder="Search Here">
+                    <button type="submit" id="submitBtn">Search</button>
+                </form>
+                <span class="recent-news" id="recent-news">Did you know? </span>
+                <div class="news-section" id="news-section"></div>
+                <div class="info" id="info">
+                    <div class="btn-container" id="btn-container">
+                        <button class="more-info" id="more-info">Info</button>
+                        <button class="hide-ui" id="hide-ui">Hide UI</button>
+                    </div>
+                    <span class="author" id="author">Developed by Armand Amores</span>
+                    <div id="myModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <p id="modal-text">Some text in the modal</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

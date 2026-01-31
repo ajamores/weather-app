@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios'); //Use for http requests 
 const path = require('path');
+const RadioBrowser = require('radio-browser')
 
 
 //For possible ai intergration 
@@ -309,16 +310,20 @@ app.get("/api/news", async (req, res) => {
         const ai = new GoogleGenAI({ apiKey: googleAiApiKey });
         const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: `Give me 5 fun facts about ${location}.
+         generationConfig: {
+            temperature: 1.7,   //  more randomness
+            topP: 0.9
+        },
+        contents: `Give me 5 random fun facts about ${location}. Mix the facts up. Place the fact you have given in the url where it says fact and the actual fact in the name as well. 
             Return your response as **valid JSON only** in the following format:
 
             {
                 "articles": [
-                    { "name": "Title 1", "url": url(place you got fact from) },
-                    { "name": "Title 2" , "url": url(place you got fact from)},
-                    { "name": "Title 3", "url": url(place you got fact from) },
-                    { "name": "Title 4", "url": url(place you got fact from) },
-                    { "name": "Title 5", "url": url(place you got fact from) }
+                    { "name": "Title 1", "url": https://www.google.com/search?q=fact },
+                    { "name": "Title 2" , "url": https://www.google.com/search?q=fact},
+                    { "name": "Title 3", "url": https://www.google.com/search?q=fact },
+                    { "name": "Title 4", "url": https://www.google.com/search?q=fact },
+                    { "name": "Title 5", "url": https://www.google.com/search?q=fact }
                 ]
             }`,
         });
@@ -350,13 +355,16 @@ app.get("/api/image", async (req, res) => {
         const weather = req.query.weather || "clear";
         console.log("Getting image for: " + country);
 
-        const url = `https://api.unsplash.com/photos/random?client_id=${UNSPLASH_KEY}&query=${country} ${weather}&orientation=landscape`;
+        const types = ["skyline", "nature", "downtown", "aerial", "landscape"];
+        const type = types[Math.floor(Math.random() * types.length)];
+
+        const url = `https://api.unsplash.com/photos/random?client_id=${UNSPLASH_KEY}&query=${country} ${type}&orientation=landscape`;
 
 
         const response = await axios.get(url);
-        console.log("UNSPLASH API DATA RECIEVED: " + response.json());
+        console.log("UNSPLASH API DATA RECIEVED: " + JSON.stringify(response.data));
 
-        const imageUrl = response.data.urls.raw + "&w=1920&h=1080&fit=crop";
+        const imageUrl = `${response.data.urls.raw}&w=1920&h=1080&fit=crop&sig=${Date.now()}`;
 
             return res.json({
                 success: true,

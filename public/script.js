@@ -64,28 +64,38 @@ const getDataFlow = async (location) =>{
 
         if(coords){
 
-            //set country and locaility and city 
-            extractLocationInfo(coords);
+            
+
             // 1️⃣ Get weather
             const weatherInfo = await getTodaysWeather(coords.lat, coords.long);
-            extractWeatherInfo(weatherInfo);
-            
-            console.log("Present Country" + presentCountry);
-            const location = presentCountry;
-            await fetchImage(location, weatherInfo.description);
-            
 
-            // 3️⃣ Get 5-day forecast
-            const forecast = await get5DayForecast(coords.lat, coords.long);
-            extractDailyForecast(forecast);
+            if (!weatherInfo) {
+                alert("Weather data isn't available for your location. Please try searching for a nearby city.");
+                return;
+            }else{
+                 //set country and locaility and city 
+                extractLocationInfo(coords);
+                extractWeatherInfo(weatherInfo);
+                
+                console.log("Present Country" + presentCountry);
+                const location = presentCountry;
+                await fetchImage(location, weatherInfo.description);
+                
 
-            // 4️⃣ Fetch image and news AFTER weather is available
-            await fetchNews(presentCountry);
+                // 3️⃣ Get 5-day forecast
+                const forecast = await get5DayForecast(coords.lat, coords.long);
+                extractDailyForecast(forecast);
+
+                // 4️⃣ Fetch image and news AFTER weather is available
+                await fetchNews(presentCountry);
+            }
+           
 
         
         }
     } catch(error){
         console.log(error);
+        
     }
 
 }
@@ -137,6 +147,7 @@ const getTodaysWeather = async (lat, long) => {
         
     } catch(error){
         console.log(error);
+        return null
     }
 
 }
@@ -249,7 +260,7 @@ const extractDailyForecast = (data) => {
 
 const fetchNews = async (location) => {
     const newsList = document.getElementById("news-section");
-    newsList.innerHTML = "<li>Gemeni API fetching facts...</li>"; // show loading state
+    newsList.innerHTML = "<li>Gemini API fetching facts...</li>"; // show loading state
 
     try {
         const response = await fetch(`/api/news?location=${encodeURIComponent(location)}`);
@@ -313,5 +324,68 @@ const fetchImage = async (country, weather) => {
 };
 
 
+function showLocationWeatherError() {
+
+    
+    // Show alert to the user
+    alert("Weather data isn't available for your location. Please try searching for a nearby city.");
+}
+
+
+
+// Get modal and elements
+const modal = document.getElementById("myModal");
+const modalText = document.getElementById("modal-text");
+const span = document.querySelector(".close");
+
+const btn1 = document.getElementById("more-info");
+const btn2 = document.getElementById("hide-ui");
+
+// Button 1 click
+btn1.onclick = () => {
+
+  modal.style.display = "block";
+  modalText.textContent = `Welcome to my weather app, where it more than just a weather app. I wanted to practice some JavaScript while working on this and thought I could add a little bit more than the weather. 
+    
+    I used 3 Google API's - the Geolocation and Weather API. The Weather API accepts x and y co-ordinates to find weather conditions for a specific locations. I wanted users to be able to type a location not numbers to find the weather of their desired destination. 
+
+    With the Geolocation API it will determine the co-ordinates of the location you enter. The more specific the location you enter the better. You can enter an address and it will get the city and country details. 
+
+    I also used Google Gemini API to fetch quick facts about the area you searched. I also used th Unsplash API to get a picture based on the location you search. 
+
+    The art is my favorite part of the app. Hope you enjoy.
+  `;
+}
+
+btn2.onclick = () => {
+    const weatherInfo = document.getElementById("weather-info");
+    const sidebar = document.getElementById("sidebar");
+    const searchbar = document.getElementById("searchbar");
+    const recentNews = document.getElementById("recent-news");
+    const newsSection = document.getElementById("news-section");
+
+    weatherInfo.classList.toggle("hidden-ui");
+    sidebar.classList.toggle("no-bg");
+    searchbar.classList.toggle("no-bg")
+    recentNews.classList.toggle("no-bg")
+    newsSection.classList.toggle("no-bg")
+
+    btn2.textContent =
+        weatherInfo.classList.contains("hidden-ui")
+        ? "Show UI"
+        : "Hide UI";
+};
+
+// Close button click
+span.onclick = () => {
+  modal.style.display = "none";
+}
+
+// Click outside the modal closes it
+window.onclick = (event) => {
+  if (event.target === modal) {
+    modal.style.display = "none";
+  }
+}
 
 

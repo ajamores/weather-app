@@ -31,7 +31,7 @@ const d5 = document.getElementById("d5");
 //When document begins 
 document.addEventListener('DOMContentLoaded', async () => {
 
-    await getDataFlow('Hamilton, ON');
+    await getDataFlow('Waterloo, ON');
 
 });
 
@@ -66,7 +66,7 @@ const getDataFlow = async (location) =>{
 
             
 
-            // 1️⃣ Get weather
+            //  Get weather
             const weatherInfo = await getTodaysWeather(coords.lat, coords.long);
 
             if (!weatherInfo) {
@@ -82,11 +82,11 @@ const getDataFlow = async (location) =>{
                 await fetchImage(location, weatherInfo.description);
                 
 
-                // 3️⃣ Get 5-day forecast
+                // 3️Get 5-day forecast
                 const forecast = await get5DayForecast(coords.lat, coords.long);
                 extractDailyForecast(forecast);
 
-                // 4️⃣ Fetch image and news AFTER weather is available
+                // 4 Fetch image and news AFTER weather is available
                 await fetchNews(presentCountry);
             }
            
@@ -345,13 +345,13 @@ const btn2 = document.getElementById("hide-ui");
 btn1.onclick = () => {
 
   modal.style.display = "block";
-  modalText.textContent = `Welcome to my weather app, where it more than just a weather app. I wanted to practice some JavaScript while working on this and thought I could add a little bit more than the weather. 
+  modalText.textContent = `Welcome to my weather app, where it is actually more than just a weather app. I wanted to practice some JavaScript while working on this and thought I could add a little bit more than the weather. 
     
     I used 3 Google API's - the Geolocation and Weather API. The Weather API accepts x and y co-ordinates to find weather conditions for a specific locations. I wanted users to be able to type a location not numbers to find the weather of their desired destination. 
 
     With the Geolocation API it will determine the co-ordinates of the location you enter. The more specific the location you enter the better. You can enter an address and it will get the city and country details. 
 
-    I also used Google Gemini API to fetch quick facts about the area you searched. I also used th Unsplash API to get a picture based on the location you search. 
+    I also used Google Gemini API to fetch quick facts about the area you searched. I also used the UnSplash API to get a picture based on the location you search. 
 
     The art is my favorite part of the app. Hope you enjoy.
   `;

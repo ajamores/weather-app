@@ -386,13 +386,7 @@ app.get("/api/image", async (req, res) => {
 });
 
 
-
-
-
-
-        //possible ai art generation 
       
-
 
 
 
